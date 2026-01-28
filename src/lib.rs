@@ -3275,7 +3275,7 @@ where
 /// - `S` is the set of already-selected documents
 /// - `Sim(d, q)` is relevance (query-document similarity)
 /// - `max_{s∈S} Sim(d, s)` is redundancy (max similarity to any selected doc)
-/// - `λ ∈ [0,1]` balances relevance and diversity
+/// - `λ` in `[0,1]` balances relevance and diversity
 ///
 /// # The λ Parameter
 ///
@@ -3298,7 +3298,7 @@ where
 /// Reordering Documents and Producing Summaries", SIGIR 1998.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct MmrConfig {
-    /// Balance parameter λ ∈ [0,1].
+    /// Balance parameter λ ∈ `[0,1]`.
     /// - λ = 1.0: pure relevance (no diversity)
     /// - λ = 0.5: balanced
     /// - λ = 0.0: pure diversity
@@ -3321,7 +3321,7 @@ impl MmrConfig {
     ///
     /// # Arguments
     ///
-    /// - `lambda`: Balance between relevance and diversity. Valid: [0.0, 1.0].
+    /// - `lambda`: Balance between relevance and diversity. Valid: `[0.0, 1.0]`.
     ///
     /// # Panics
     ///
@@ -3356,7 +3356,7 @@ impl MmrConfig {
 ///
 /// - `candidates`: List of (id, relevance_score) tuples, typically from initial retrieval
 /// - `similarities`: Function returning similarity between two IDs. Should return
-///   values in [0,1] where 1 = identical, 0 = completely different.
+///   values in `[0,1]` where 1 = identical, 0 = completely different.
 /// - `config`: MMR configuration (lambda, top_k)
 ///
 /// # Returns
@@ -3397,7 +3397,7 @@ impl MmrConfig {
 ///
 /// # Implementation Notes
 ///
-/// 1. Relevance scores are normalized to [0,1] before MMR computation
+/// 1. Relevance scores are normalized to `[0,1]` before MMR computation
 /// 2. First document is always the highest-relevance candidate
 /// 3. Ties broken by original relevance score
 ///
