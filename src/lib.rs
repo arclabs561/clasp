@@ -1,9 +1,10 @@
-//! Rank fusion for hybrid search.
+//! Rank fusion and reranking for hybrid search.
 //!
-//! Combine results from multiple retrievers (BM25, dense, sparse) into a single ranking.
+//! Combine results from multiple retrievers (BM25, dense, sparse) and rerank with
+//! MaxSim (ColBERT), diversity (MMR/DPP), or Matryoshka two-stage retrieval.
 //!
 //! ```rust
-//! use cerno_fuse::rrf;
+//! use clasp::rrf;
 //!
 //! let bm25 = vec![("d1", 12.5), ("d2", 11.0)];
 //! let dense = vec![("d2", 0.9), ("d3", 0.8)];
@@ -43,12 +44,13 @@
 //!
 //! `OpenSearch` benchmarks (BEIR) show RRF is ~3-4% lower NDCG than score-based
 //! fusion (`CombSUM`), but ~1-2% faster. RRF excels when score scales are
-//! incompatible or unknown. See [OpenSearch RRF blog](https://opensearch.org/blog/introducing-reciprocal-cerno-fuse-hybrid-search/).
+//! incompatible or unknown. See [OpenSearch RRF blog](https://opensearch.org/blog/introducing-reciprocal-clasp-hybrid-search/).
 
 use std::collections::HashMap;
 use std::hash::Hash;
 
 /// Validation utilities for fusion results.
+pub mod rerank;
 pub mod validate;
 
 #[cfg(test)]
@@ -102,7 +104,7 @@ const SCORE_RANGE_EPSILON: f32 = 1e-9;
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::RrfConfig;
+/// use clasp::RrfConfig;
 ///
 /// let config = RrfConfig::default()
 ///     .with_k(60)
@@ -135,7 +137,7 @@ impl RrfConfig {
     /// # Example
     ///
     /// ```rust
-    /// use cerno_fuse::RrfConfig;
+    /// use clasp::RrfConfig;
     ///
     /// let config = RrfConfig::new(60);
     /// ```
@@ -180,7 +182,7 @@ impl RrfConfig {
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::WeightedConfig;
+/// use clasp::WeightedConfig;
 ///
 /// let config = WeightedConfig::default()
 ///     .with_weights(0.7, 0.3)
@@ -245,7 +247,7 @@ impl WeightedConfig {
     }
 }
 
-/// Configuration for cerno-based fusion (Borda, `CombSUM`, `CombMNZ`).
+/// Configuration for rank-based fusion (Borda, `CombSUM`, `CombMNZ`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct FusionConfig {
     /// Maximum results to return (None = all).
@@ -268,7 +270,7 @@ impl FusionConfig {
 /// Prelude for common imports.
 ///
 /// ```rust
-/// use cerno_fuse::prelude::*;
+/// use clasp::prelude::*;
 /// ```
 pub mod prelude {
     pub use crate::{
@@ -325,12 +327,12 @@ pub use validate::{
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::FusionMethod;
+/// use clasp::FusionMethod;
 ///
 /// let sparse = vec![("d1", 10.0), ("d2", 8.0)];
 /// let dense = vec![("d2", 0.9), ("d3", 0.7)];
 ///
-/// // Use RRF (cerno-based, score-agnostic)
+/// // Use RRF (rank-based, score-agnostic)
 /// let fused = FusionMethod::Rrf { k: 60 }.fuse(&sparse, &dense);
 ///
 /// // Use CombSUM (score-based)
@@ -622,12 +624,12 @@ impl FusionMethod {
 /// after fusion. Edge cases handled:
 /// - Empty lists: Returns items from non-empty list(s)
 /// - k=0: Returns empty Vec (use `validate()` to catch this)
-/// - Non-finite scores: Ignored (RRF is cerno-based)
+/// - Non-finite scores: Ignored (RRF is rank-based)
 ///
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::rrf;
+/// use clasp::rrf;
 ///
 /// let sparse = vec![("d1", 0.9), ("d2", 0.5)];
 /// let dense = vec![("d2", 0.8), ("d3", 0.3)];
@@ -643,9 +645,9 @@ impl FusionMethod {
 ///
 /// # Formula
 ///
-/// `RRF(d) = Σ 1/(k + cerno_r(d))` where:
+/// `RRF(d) = Σ 1/(k + rank_r(d))` where:
 /// - `k` = smoothing constant (default: 60)
-/// - `cerno_r(d)` = position of document d in ranking r (0-indexed)
+/// - `rank_r(d)` = position of document d in ranking r (0-indexed)
 ///
 /// # Why RRF?
 ///
@@ -669,7 +671,7 @@ impl FusionMethod {
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::rrf;
+/// use clasp::rrf;
 ///
 /// // BM25 results (high scores = better)
 /// let bm25 = vec![
@@ -724,7 +726,7 @@ pub fn rrf<I: Clone + Eq + Hash>(results_a: &[(I, f32)], results_b: &[(I, f32)])
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::{rrf_with_config, RrfConfig};
+/// use clasp::{rrf_with_config, RrfConfig};
 ///
 /// let a = vec![("d1", 0.9), ("d2", 0.5)];
 /// let b = vec![("d2", 0.8), ("d3", 0.3)];
@@ -852,18 +854,18 @@ where
     finalize(scores, config.top_k)
 }
 
-/// Weighted RRF: per-retriever weights applied to cerno-based scores.
+/// Weighted RRF: per-retriever weights applied to rank-based scores.
 ///
 /// Unlike standard RRF which treats all lists equally, weighted RRF allows
 /// assigning different importance to different retrievers based on domain
 /// knowledge or tuning.
 ///
-/// Formula: `score(d) = Σ w_i / (k + cerno_i(d))`
+/// Formula: `score(d) = Σ w_i / (k + rank_i(d))`
 ///
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::{rrf_weighted, RrfConfig};
+/// use clasp::{rrf_weighted, RrfConfig};
 ///
 /// let bm25 = vec![("d1", 0.0), ("d2", 0.0)];   // scores ignored
 /// let dense = vec![("d2", 0.0), ("d3", 0.0)];
@@ -945,7 +947,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::isr;
+/// use clasp::isr;
 ///
 /// let sparse = vec![("d1", 0.9), ("d2", 0.5), ("d3", 0.3)];
 /// let dense = vec![("d2", 0.8), ("d3", 0.7), ("d4", 0.2)];
@@ -991,7 +993,7 @@ pub fn isr<I: Clone + Eq + Hash>(results_a: &[(I, f32)], results_b: &[(I, f32)])
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::{isr_with_config, RrfConfig};
+/// use clasp::{isr_with_config, RrfConfig};
 ///
 /// let a = vec![("d1", 0.9), ("d2", 0.5)];
 /// let b = vec![("d2", 0.8), ("d3", 0.3)];
@@ -1202,7 +1204,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::combsum;
+/// use clasp::combsum;
 ///
 /// // Both lists use cosine similarity (0-1 scale)
 /// let sparse = vec![
@@ -1321,7 +1323,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::combmnz;
+/// use clasp::combmnz;
 ///
 /// let sparse = vec![("doc1", 0.9), ("doc2", 0.8)];
 /// let dense = vec![("doc2", 0.95), ("doc3", 0.7)];
@@ -1448,7 +1450,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::borda;
+/// use clasp::borda;
 ///
 /// // List 1: 3 items (positions 0, 1, 2 → scores 3, 2, 1)
 /// let list1 = vec![("d1", 0.9), ("d2", 0.5), ("d3", 0.3)];
@@ -1571,7 +1573,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::dbsf;
+/// use clasp::dbsf;
 ///
 /// // BM25 scores (high variance, different scale)
 /// let bm25 = vec![("d1", 15.0), ("d2", 12.0), ("d3", 8.0)];
@@ -1754,7 +1756,7 @@ impl StandardizedConfig {
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::standardized;
+/// use clasp::standardized;
 ///
 /// let bm25 = vec![("d1", 15.0), ("d2", 12.0), ("d3", 8.0)];
 /// let dense = vec![("d2", 0.9), ("d3", 0.7), ("d4", 0.5)];
@@ -1897,7 +1899,7 @@ impl AdditiveMultiTaskConfig {
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::{additive_multi_task, AdditiveMultiTaskConfig};
+/// use clasp::{additive_multi_task, AdditiveMultiTaskConfig};
 ///
 /// let ctr_scores = vec![("item1", 0.05), ("item2", 0.03), ("item3", 0.01)];
 /// let ctcvr_scores = vec![("item1", 0.02), ("item2", 0.01), ("item3", 0.005)];
@@ -1936,7 +1938,7 @@ pub fn additive_multi_task_with_config<I: Clone + Eq + Hash>(
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::{additive_multi_task_multi, AdditiveMultiTaskConfig};
+/// use clasp::{additive_multi_task_multi, AdditiveMultiTaskConfig};
 ///
 /// let task1 = vec![("d1", 0.9), ("d2", 0.7)];
 /// let task2 = vec![("d1", 0.8), ("d2", 0.6)];
@@ -2150,7 +2152,7 @@ fn min_max_params<I>(results: &[(I, f32)]) -> (f32, f32) {
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::explain::{rrf_explain, RetrieverId};
+/// use clasp::explain::{rrf_explain, RetrieverId};
 ///
 /// let bm25 = vec![("d1", 12.5), ("d2", 11.0)];
 /// let dense = vec![("d2", 0.9), ("d3", 0.8)];
@@ -2163,7 +2165,7 @@ fn min_max_params<I>(results: &[(I, f32)]) -> (f32, f32) {
 /// let explained = rrf_explain(
 ///     &[&bm25[..], &dense[..]],
 ///     &retrievers,
-///     cerno_fuse::RrfConfig::default(),
+///     clasp::RrfConfig::default(),
 /// );
 ///
 /// // d2 appears in both lists, so it has 2 source contributions
@@ -2207,9 +2209,9 @@ pub struct SourceContribution {
     pub retriever_id: String,
     /// Original rank in this retriever's list (0-indexed, None if not present).
     pub original_rank: Option<usize>,
-    /// Original score from this retriever (None for cerno-based methods or if not present).
+    /// Original score from this retriever (None for rank-based methods or if not present).
     pub original_score: Option<f32>,
-    /// Normalized score (for score-based methods, None for cerno-based).
+    /// Normalized score (for score-based methods, None for rank-based).
     pub normalized_score: Option<f32>,
     /// How much this source contributed to the final fused score.
     ///
@@ -2269,8 +2271,8 @@ impl From<String> for RetrieverId {
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::explain::{rrf_explain, RetrieverId};
-/// use cerno_fuse::RrfConfig;
+/// use clasp::explain::{rrf_explain, RetrieverId};
+/// use clasp::RrfConfig;
 ///
 /// let bm25 = vec![("d1", 12.5), ("d2", 11.0)];
 /// let dense = vec![("d2", 0.9), ("d3", 0.8)];
@@ -2384,8 +2386,8 @@ where
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::explain::{rrf_explain, analyze_consensus, RetrieverId};
-/// use cerno_fuse::RrfConfig;
+/// use clasp::explain::{rrf_explain, analyze_consensus, RetrieverId};
+/// use clasp::RrfConfig;
 ///
 /// let bm25 = vec![("d1", 12.5), ("d2", 11.0)];
 /// let dense = vec![("d2", 0.9), ("d3", 0.8)];
@@ -2411,13 +2413,13 @@ pub struct ConsensusReport<K> {
     ///
     /// A document might appear at rank 0 in one retriever but rank 50 in another,
     /// indicating retriever disagreement.
-    pub cerno_disagreement: Vec<(K, Vec<(String, usize)>)>,
+    pub rank_disagreement: Vec<(K, Vec<(String, usize)>)>,
 }
 
 pub fn analyze_consensus<K: Clone + Eq + Hash>(results: &[FusedResult<K>]) -> ConsensusReport<K> {
     let mut high_consensus = Vec::new();
     let mut single_source = Vec::new();
-    let mut cerno_disagreement = Vec::new();
+    let mut rank_disagreement = Vec::new();
 
     for result in results {
         // High consensus: in all retrievers
@@ -2441,13 +2443,13 @@ pub fn analyze_consensus<K: Clone + Eq + Hash>(results: &[FusedResult<K>]) -> Co
             if let (Some(&min_rank), Some(&max_rank)) = (ranks.iter().min(), ranks.iter().max()) {
                 if max_rank - min_rank > 10 {
                     // Large disagreement threshold
-                    let cerno_info: Vec<(String, usize)> = result
+                    let rank_info: Vec<(String, usize)> = result
                         .explanation
                         .sources
                         .iter()
                         .filter_map(|s| s.original_rank.map(|r| (s.retriever_id.clone(), r)))
                         .collect();
-                    cerno_disagreement.push((result.id.clone(), cerno_info));
+                    rank_disagreement.push((result.id.clone(), rank_info));
                 }
             }
         }
@@ -2456,7 +2458,7 @@ pub fn analyze_consensus<K: Clone + Eq + Hash>(results: &[FusedResult<K>]) -> Co
     ConsensusReport {
         high_consensus,
         single_source,
-        cerno_disagreement,
+        rank_disagreement,
     }
 }
 
@@ -2481,8 +2483,8 @@ pub struct RetrieverStats {
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::explain::{rrf_explain, attribute_top_k, RetrieverId};
-/// use cerno_fuse::RrfConfig;
+/// use clasp::explain::{rrf_explain, attribute_top_k, RetrieverId};
+/// use clasp::RrfConfig;
 ///
 /// let bm25 = vec![("d1", 12.5), ("d2", 11.0)];
 /// let dense = vec![("d2", 0.9), ("d3", 0.8)];
@@ -2768,7 +2770,7 @@ fn build_explained_results<I: Clone + Eq + Hash>(
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::FusionStrategy;
+/// use clasp::FusionStrategy;
 ///
 /// let list1 = vec![("d1", 1.0), ("d2", 0.5)];
 /// let list2 = vec![("d2", 0.9), ("d3", 0.8)];
@@ -3366,7 +3368,7 @@ impl MmrConfig {
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::{mmr, MmrConfig};
+/// use clasp::{mmr, MmrConfig};
 /// use std::collections::HashMap;
 ///
 /// // Candidates with relevance scores
@@ -3493,7 +3495,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::{mmr_with_matrix, MmrConfig};
+/// use clasp::{mmr_with_matrix, MmrConfig};
 /// use std::collections::HashMap;
 ///
 /// let candidates = vec![("a", 0.9), ("b", 0.85), ("c", 0.8)];
@@ -3645,7 +3647,7 @@ pub fn ndcg_at_k<K: Clone + Eq + Hash>(results: &[(K, f32)], qrels: &Qrels<K>, k
 ///
 /// Measures the rank of the first relevant document. MRR ranges from 0.0 to 1.0.
 ///
-/// Formula: MRR = 1 / cerno_of_first_relevant
+/// Formula: MRR = 1 / rank_of_first_relevant
 pub fn mrr<K: Clone + Eq + Hash>(results: &[(K, f32)], qrels: &Qrels<K>) -> f32 {
     for (rank, (id, _)) in results.iter().enumerate() {
         if qrels.contains_key(id) && qrels[id] > 0 {
@@ -3730,8 +3732,8 @@ pub struct OptimizedParams {
 /// # Example
 ///
 /// ```rust
-/// use cerno_fuse::optimize::{optimize_fusion, OptimizeConfig, OptimizeMetric, ParamGrid};
-/// use cerno_fuse::FusionMethod;
+/// use clasp::optimize::{optimize_fusion, OptimizeConfig, OptimizeMetric, ParamGrid};
+/// use clasp::FusionMethod;
 ///
 /// let qrels = std::collections::HashMap::from([
 ///     ("doc1", 2), // highly relevant

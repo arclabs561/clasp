@@ -1,4 +1,4 @@
-//! Python bindings for cerno-fuse using PyO3.
+//! Python bindings for clasp using PyO3.
 //!
 //! Provides a Python API that mirrors the Rust API, enabling seamless
 //! integration with Python RAG/search stacks.
@@ -6,12 +6,12 @@
 //! # Usage
 //!
 //! ```python
-//! import cerno_fuse
+//! import clasp
 //!
 //! bm25 = [("d1", 12.5), ("d2", 11.0)]
 //! dense = [("d2", 0.9), ("d3", 0.8)]
 //!
-//! fused = cerno_fuse.rrf(bm25, dense, k=60)
+//! fused = clasp.rrf(bm25, dense, k=60)
 //! # [("d2", 0.033), ("d1", 0.016), ("d3", 0.016)]
 //! ```
 
@@ -56,7 +56,7 @@ fn make_result_tuple<'py>(
 
 // TODO: Remove allow(deprecated) when upgrading to pyo3 0.25+ which uses IntoPyObject
 /// Registers the module functions and classes.
-/// Publicly exposed to allow other crates (like cerno) to include this module.
+/// Publicly exposed to allow other crates to include this module.
 pub fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Rank-based fusion
     m.add_function(wrap_pyfunction!(rrf_py, m)?)?;
@@ -1115,7 +1115,7 @@ struct ConsensusReportPy {
     #[pyo3(get)]
     single_source: Vec<String>,
     #[pyo3(get)]
-    cerno_disagreement: Vec<(String, Vec<(String, usize)>)>,
+    rank_disagreement: Vec<(String, Vec<(String, usize)>)>,
 }
 
 impl From<ConsensusReport<String>> for ConsensusReportPy {
@@ -1123,7 +1123,7 @@ impl From<ConsensusReport<String>> for ConsensusReportPy {
         Self {
             high_consensus: report.high_consensus,
             single_source: report.single_source,
-            cerno_disagreement: report.cerno_disagreement,
+            rank_disagreement: report.rank_disagreement,
         }
     }
 }

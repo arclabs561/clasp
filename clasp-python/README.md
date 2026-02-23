@@ -1,23 +1,23 @@
-# cerno-fuse-python
+# clasp-python
 
-Python bindings for [`cerno-fuse`](../cerno-fuse/README.md) — rank fusion algorithms for hybrid search.
+Python bindings for [`clasp`](../clasp/README.md) — rank fusion algorithms for hybrid search.
 
-[![PyPI](https://img.shields.io/pypi/v/cerno-fuse.svg)](https://pypi.org/project/cerno-fuse/)
-[![Python](https://img.shields.io/pypi/pyversions/cerno-fuse.svg)](https://pypi.org/project/cerno-fuse/)
+[![PyPI](https://img.shields.io/pypi/v/clasp.svg)](https://pypi.org/project/clasp/)
+[![Python](https://img.shields.io/pypi/pyversions/clasp.svg)](https://pypi.org/project/clasp/)
 
 ## Installation
 
 ### From PyPI
 
 ```bash
-pip install cerno-fuse
+pip install clasp
 ```
 
 ### From source
 
 ```bash
 # Using uv (recommended)
-cd cerno-fuse-python
+cd clasp-python
 uv venv
 source .venv/bin/activate
 uv tool install maturin
@@ -31,7 +31,7 @@ maturin develop --release
 ## Quick Start
 
 ```python
-import cerno_fuse
+import clasp
 
 # BM25 results (keyword search)
 bm25 = [("doc_1", 87.5), ("doc_2", 82.3), ("doc_3", 78.1)]
@@ -40,7 +40,7 @@ bm25 = [("doc_1", 87.5), ("doc_2", 82.3), ("doc_3", 78.1)]
 dense = [("doc_2", 0.92), ("doc_1", 0.88), ("doc_4", 0.85)]
 
 # RRF finds consensus: doc_2 appears high in both lists
-fused = cerno_fuse.rrf(bm25, dense, k=60)
+fused = clasp.rrf(bm25, dense, k=60)
 # [("doc_2", 0.033), ("doc_1", 0.032), ("doc_3", 0.016), ("doc_4", 0.016)]
 ```
 
@@ -56,10 +56,10 @@ These methods work with any score scale because they only use rank positions:
 
 ```python
 # Two lists
-fused = cerno_fuse.rrf(bm25, dense, k=60, top_k=10)
+fused = clasp.rrf(bm25, dense, k=60, top_k=10)
 
 # Multiple lists
-fused = cerno_fuse.rrf_multi([bm25, dense, sparse], k=60, top_k=10)
+fused = clasp.rrf_multi([bm25, dense, sparse], k=60, top_k=10)
 ```
 
 **When to use**: Different score scales (BM25: 0-100, dense: 0-1), zero-configuration needs.
@@ -67,8 +67,8 @@ fused = cerno_fuse.rrf_multi([bm25, dense, sparse], k=60, top_k=10)
 #### ISR (Inverse Square Rank)
 
 ```python
-fused = cerno_fuse.isr(bm25, dense, k=1, top_k=10)
-fused = cerno_fuse.isr_multi([bm25, dense], k=1, top_k=10)
+fused = clasp.isr(bm25, dense, k=1, top_k=10)
+fused = clasp.isr_multi([bm25, dense], k=1, top_k=10)
 ```
 
 **When to use**: When lower ranks should contribute more relative to top positions.
@@ -76,8 +76,8 @@ fused = cerno_fuse.isr_multi([bm25, dense], k=1, top_k=10)
 #### Borda Count
 
 ```python
-fused = cerno_fuse.borda(bm25, dense, top_k=10)
-fused = cerno_fuse.borda_multi([bm25, dense], top_k=10)
+fused = clasp.borda(bm25, dense, top_k=10)
+fused = clasp.borda_multi([bm25, dense], top_k=10)
 ```
 
 **When to use**: Simple voting-based fusion.
@@ -89,8 +89,8 @@ These methods require scores on compatible scales:
 #### CombSUM
 
 ```python
-fused = cerno_fuse.combsum(bm25, dense, top_k=10)
-fused = cerno_fuse.combsum_multi([bm25, dense], top_k=10)
+fused = clasp.combsum(bm25, dense, top_k=10)
+fused = clasp.combsum_multi([bm25, dense], top_k=10)
 ```
 
 **When to use**: Scores on the same scale (both 0-1, both cosine similarity).
@@ -98,8 +98,8 @@ fused = cerno_fuse.combsum_multi([bm25, dense], top_k=10)
 #### CombMNZ
 
 ```python
-fused = cerno_fuse.combmnz(bm25, dense, top_k=10)
-fused = cerno_fuse.combmnz_multi([bm25, dense], top_k=10)
+fused = clasp.combmnz(bm25, dense, top_k=10)
+fused = clasp.combmnz_multi([bm25, dense], top_k=10)
 ```
 
 **When to use**: Same scale as CombSUM, but want to reward documents appearing in multiple lists.
@@ -107,7 +107,7 @@ fused = cerno_fuse.combmnz_multi([bm25, dense], top_k=10)
 #### Weighted Fusion
 
 ```python
-fused = cerno_fuse.weighted(
+fused = clasp.weighted(
     bm25, dense,
     weight_a=0.7,  # Weight for first list
     weight_b=0.3,  # Weight for second list
@@ -121,8 +121,8 @@ fused = cerno_fuse.weighted(
 #### DBSF (Distribution-Based Score Fusion)
 
 ```python
-fused = cerno_fuse.dbsf(bm25, dense, top_k=10)
-fused = cerno_fuse.dbsf_multi([bm25, dense], top_k=10)
+fused = clasp.dbsf(bm25, dense, top_k=10)
+fused = clasp.dbsf_multi([bm25, dense], top_k=10)
 ```
 
 **When to use**: Score distributions differ significantly between retrievers.
@@ -131,10 +131,10 @@ fused = cerno_fuse.dbsf_multi([bm25, dense], top_k=10)
 
 ```python
 # Two lists with default clipping [-3.0, 3.0]
-fused = cerno_fuse.standardized(bm25, dense, clip_range=(-3.0, 3.0), top_k=10)
+fused = clasp.standardized(bm25, dense, clip_range=(-3.0, 3.0), top_k=10)
 
 # Multiple lists
-fused = cerno_fuse.standardized_multi(
+fused = clasp.standardized_multi(
     [bm25, dense],
     clip_min=-3.0,
     clip_max=3.0,
@@ -148,7 +148,7 @@ fused = cerno_fuse.standardized_multi(
 
 ```python
 # E-commerce example: CTR + CTCVR with 1:20 weight ratio
-fused = cerno_fuse.additive_multi_task(
+fused = clasp.additive_multi_task(
     ctr_scores,      # Click-through rate predictions
     ctcvr_scores,    # Click-to-conversion rate predictions
     weight_a=1.0,    # Weight for first task
@@ -165,15 +165,15 @@ fused = cerno_fuse.additive_multi_task(
 Get detailed provenance information showing which retrievers contributed to each result:
 
 ```python
-import cerno_fuse
+import clasp
 
 bm25 = [("doc_1", 87.5), ("doc_2", 82.3)]
 dense = [("doc_2", 0.92), ("doc_3", 0.88)]
 
 # Get results with full provenance
-explained = cerno_fuse.rrf_explain(
+explained = clasp.rrf_explain(
     [bm25, dense],
-    [cerno_fuse.RetrieverIdPy("bm25"), cerno_fuse.RetrieverIdPy("dense")],
+    [clasp.RetrieverIdPy("bm25"), clasp.RetrieverIdPy("dense")],
     k=60
 )
 
@@ -200,24 +200,24 @@ Available explainability functions:
 Validate fusion results to ensure they meet expected properties:
 
 ```python
-import cerno_fuse
+import clasp
 
-fused = cerno_fuse.rrf(bm25, dense, k=60)
+fused = clasp.rrf(bm25, dense, k=60)
 
 # Comprehensive validation
 # Parameters: (results, check_non_negative: bool, max_results: Optional[int])
-result = cerno_fuse.validate(fused, check_non_negative=False, max_results=10)
+result = clasp.validate(fused, check_non_negative=False, max_results=10)
 if not result.is_valid:
     print(f"Validation errors: {result.errors}")
 if result.warnings:
     print(f"Warnings: {result.warnings}")
 
 # Individual checks
-sorted_check = cerno_fuse.validate_sorted(fused)
-dup_check = cerno_fuse.validate_no_duplicates(fused)
-finite_check = cerno_fuse.validate_finite_scores(fused)
-non_neg_check = cerno_fuse.validate_non_negative_scores(fused)
-bounds_check = cerno_fuse.validate_bounds(fused, max_results=10)
+sorted_check = clasp.validate_sorted(fused)
+dup_check = clasp.validate_no_duplicates(fused)
+finite_check = clasp.validate_finite_scores(fused)
+non_neg_check = clasp.validate_non_negative_scores(fused)
+bounds_check = clasp.validate_bounds(fused, max_results=10)
 ```
 
 Validation checks:
@@ -233,7 +233,7 @@ For advanced usage, you can use configuration objects:
 
 ```python
 # RRF configuration
-config = cerno_fuse.RrfConfigPy(k=100)
+config = clasp.RrfConfigPy(k=100)
 # Note: RRF functions accept k and top_k directly, config objects are for future extensibility
 
 # Other config types available:
@@ -246,7 +246,7 @@ config = cerno_fuse.RrfConfigPy(k=100)
 ## Complete Example: RAG Pipeline
 
 ```python
-import cerno_fuse
+import clasp
 
 def rag_pipeline(query: str):
     # Step 1: Retrieve from multiple sources
@@ -264,7 +264,7 @@ def rag_pipeline(query: str):
     ]
     
     # Step 2: Fuse results (RRF finds consensus)
-    fused = cerno_fuse.rrf_multi(
+    fused = clasp.rrf_multi(
         [bm25_results, dense_results],
         k=60,
         top_k=100  # Top 100 for reranking
@@ -293,7 +293,7 @@ from typing import List, Tuple
 RankedList = List[Tuple[str, float]]
 
 # Functions return typed results
-fused: RankedList = cerno_fuse.rrf(bm25, dense, k=60)
+fused: RankedList = clasp.rrf(bm25, dense, k=60)
 ```
 
 ## Error Handling
@@ -302,10 +302,10 @@ Most functions return results directly. Functions that can error return `Result`
 
 ```python
 # Most functions don't error - they return empty list for edge cases
-fused = cerno_fuse.rrf([], [])  # Returns []
+fused = clasp.rrf([], [])  # Returns []
 
 # Validation functions return ValidationResult with errors/warnings
-result = cerno_fuse.validate(fused, check_non_negative=False, max_results=10)
+result = clasp.validate(fused, check_non_negative=False, max_results=10)
 if not result.is_valid:
     for error in result.errors:
         print(f"Error: {error}")
@@ -323,7 +323,7 @@ Overhead comes from Python object conversion and result serialization (~1-2μs p
 ## Edge Cases
 
 - **Empty lists**: Returns empty list `[]`
-- **Duplicate IDs in same list**: All occurrences contribute (for cerno-based methods)
+- **Duplicate IDs in same list**: All occurrences contribute (for rank-based methods)
 - **k=0 in RRF**: Returns empty list (k must be >= 1)
 - **NaN/Infinity scores**: Use `validate_finite_scores()` to check
 
@@ -345,12 +345,12 @@ Need to fuse results?
 
 ## See Also
 
-- **[Core crate documentation](../cerno-fuse/README.md)** - Complete algorithm details and theory
-- **[Getting Started Guide](../cerno-fuse/GETTING_STARTED.md)** - Tutorial with real-world examples
-- **[Integration Guide](../cerno-fuse/INTEGRATION.md)** - Framework-specific examples (LangChain, LlamaIndex, etc.)
-- **[Design Principles](../cerno-fuse/DESIGN.md)** - Algorithm details and edge cases
-- **[Performance Guide](../cerno-fuse/PERFORMANCE.md)** - Benchmarks and optimization tips
-- **[API Documentation](https://docs.rs/cerno-fuse)** - Full Rust API reference
+- **[Core crate documentation](../clasp/README.md)** - Complete algorithm details and theory
+- **[Getting Started Guide](../clasp/GETTING_STARTED.md)** - Tutorial with real-world examples
+- **[Integration Guide](../clasp/INTEGRATION.md)** - Framework-specific examples (LangChain, LlamaIndex, etc.)
+- **[Design Principles](../clasp/DESIGN.md)** - Algorithm details and edge cases
+- **[Performance Guide](../clasp/PERFORMANCE.md)** - Benchmarks and optimization tips
+- **[API Documentation](https://docs.rs/clasp)** - Full Rust API reference
 
 ## License
 

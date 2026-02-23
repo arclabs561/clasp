@@ -3,17 +3,22 @@ name = "clasp"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-description = "Rank fusion for hybrid search: RRF, ISR, CombMNZ, Borda, DBSF. Combines multiple retrieval results."
+description = "Rank fusion and reranking: RRF, ISR, CombMNZ, Borda, DBSF, MaxSim (ColBERT), MMR, DPP, Matryoshka."
 repository = "https://github.com/arclabs561/clasp"
+readme = "README.md"
 keywords = ["rank-fusion", "retrieval", "rrf"]
 categories = ["algorithms", "mathematics", "science"]
 
 [dependencies]
 serde = { version = "1.0", optional = true, features = ["derive"] }
+# SIMD primitives for reranking (MaxSim/ColBERT)
+innr = { version = "0.1.0", optional = true }
 
 [features]
-default = []
+default = ["rerank"]
 serde = ["dep:serde"]
+# Reranking: MaxSim (ColBERT), diversity, matryoshka — requires innr for SIMD
+rerank = ["dep:innr"]
 
 [dev-dependencies]
 criterion = { version = "0.7", features = ["html_reports"] }

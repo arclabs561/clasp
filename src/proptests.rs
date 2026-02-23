@@ -1,4 +1,4 @@
-//! Property tests for cerno-fuse algorithms.
+//! Property tests for clasp algorithms.
 //!
 //! These tests verify invariants that should always hold:
 //! - Output is sorted descending
