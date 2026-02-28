@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "clasp"
 version = "0.1.20"
-description = "Python bindings for clasp — rank fusion algorithms for hybrid search"
+description = "Python bindings for rankops (Rust) — fusion and reranking for hybrid search. PyPI package name: clasp."
 readme = "README.md"
 requires-python = ">=3.7"
 license = { text = "MIT OR Apache-2.0" }
@@ -27,9 +27,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/arclabs561/clasp"
-Documentation = "https://docs.rs/clasp"
-Repository = "https://github.com/arclabs561/clasp"
+Homepage = "https://github.com/arclabs561/rankops"
+Documentation = "https://docs.rs/rankops"
+Repository = "https://github.com/arclabs561/rankops"
 
 [project.optional-dependencies]
 dev = [

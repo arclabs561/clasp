@@ -1,8 +1,8 @@
-# clasp
+# rankops
 
-Rank fusion and reranking for hybrid search.
+Operations on ranked lists: fuse multiple retrievers, then rerank. Pairs with **rankfns** (scoring kernels).
 
-`clasp` covers the post-retrieval ranking pipeline end-to-end:
+`rankops` covers the post-retrieval pipeline:
 
 - **Fusion** — RRF, ISR, CombMNZ, Borda, DBSF, weighted variants (score-agnostic or score-based)
 - **Reranking** — MaxSim (ColBERT late interaction), MMR/DPP diversity, Matryoshka two-stage
@@ -12,29 +12,21 @@ Rank fusion and reranking for hybrid search.
 
 ```toml
 [dependencies]
-clasp = "0.1.0"
+rankops = "0.1.0"
 ```
 
 ```rust
-use clasp::{rrf, ScoredItem};
+use rankops::{rrf, ScoredItem};
 
-// List A: [doc1, doc2]
-let list_a = vec![
-    ScoredItem { id: 1, score: 1.0 },
-    ScoredItem { id: 2, score: 0.5 },
-];
+// List A: [doc1, doc2] (e.g. BM25)
+let list_a: Vec<(u32, f32)> = vec![(1, 1.0), (2, 0.5)];
+// List B: [doc2, doc3] (e.g. dense)
+let list_b: Vec<(u32, f32)> = vec![(2, 0.9), (3, 0.4)];
 
-// List B: [doc2, doc3]
-let list_b = vec![
-    ScoredItem { id: 2, score: 0.9 },
-    ScoredItem { id: 3, score: 0.4 },
-];
-
-// Fuse with Reciprocal Rank Fusion (k=60)
-let fused = rrf(&[&list_a, &list_b], 60.0);
-
-// doc2 should be top because it appears in both
-assert_eq!(fused[0].id, 2);
+// RRF with default k=60
+let fused = rrf(&list_a, &list_b);
+// doc2 ranks highest (appears in both)
+assert_eq!(fused[0].0, 2);
 ```
 
 ## Features

@@ -36,13 +36,13 @@
 //! # Example
 //!
 //! ```rust
-//! use clasp::rerank::scoring::{DenseScorer, Scorer};
+//! use rankops::rerank::scoring::{DenseScorer, Scorer};
 //!
 //! let scorer = DenseScorer::Cosine;
 //! let score = scorer.score(&[1.0, 0.0], &[0.9, 0.1]);
 //! ```
 //!
-//! See [REFERENCE.md](https://github.com/arclabs561/clasp) for mathematical details.
+//! See [REFERENCE.md](https://github.com/arclabs561/rankops) for mathematical details.
 
 use super::simd;
 
@@ -148,7 +148,7 @@ impl LateInteractionScorer {
     /// # Example
     ///
     /// ```rust
-    /// use clasp::rerank::scoring::LateInteractionScorer;
+    /// use rankops::rerank::scoring::LateInteractionScorer;
     ///
     /// let scorer = LateInteractionScorer::MaxSimDot;
     /// let query = vec![[1.0, 0.0], [0.0, 1.0]];
@@ -206,7 +206,11 @@ pub trait TokenScorer {
     }
 
     /// Rank documents by token-level score (descending).
-    fn maxsim_tokens<I: Clone>(&self, query: &[&[f32]], docs: &[(I, Vec<&[f32]>)]) -> Vec<(I, f32)> {
+    fn maxsim_tokens<I: Clone>(
+        &self,
+        query: &[&[f32]],
+        docs: &[(I, Vec<&[f32]>)],
+    ) -> Vec<(I, f32)> {
         let mut results: Vec<(I, f32)> = docs
             .iter()
             .map(|(id, doc_tokens)| (id.clone(), self.score_tokens(query, doc_tokens)))
@@ -375,7 +379,7 @@ impl Pooler for AdaptivePooler {
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::scoring::{FnPooler, Pooler};
+/// use rankops::rerank::scoring::{FnPooler, Pooler};
 ///
 /// // Simple mean pooling: collapse all tokens into one
 /// let mean_pool = FnPooler::new(|tokens: &[Vec<f32>], _target| {

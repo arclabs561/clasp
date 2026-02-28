@@ -1,4 +1,4 @@
-"""Type stubs for rank-fusion Python bindings.
+"""Type stubs for rankops Python bindings (PyPI package: clasp).
 
 This file provides static type checking support for mypy, pyright, and other type checkers.
 """

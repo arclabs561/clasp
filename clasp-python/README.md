@@ -1,6 +1,6 @@
 # clasp-python
 
-Python bindings for [`clasp`](../clasp/README.md) — rank fusion algorithms for hybrid search.
+Python bindings for **rankops** (Rust) — fusion and reranking for hybrid search. The Rust crate is [rankops](../README.md) (directory `rankops/`); this package is published as `clasp` on PyPI for backward compatibility.
 
 [![PyPI](https://img.shields.io/pypi/v/clasp.svg)](https://pypi.org/project/clasp/)
 [![Python](https://img.shields.io/pypi/pyversions/clasp.svg)](https://pypi.org/project/clasp/)
@@ -345,12 +345,8 @@ Need to fuse results?
 
 ## See Also
 
-- **[Core crate documentation](../clasp/README.md)** - Complete algorithm details and theory
-- **[Getting Started Guide](../clasp/GETTING_STARTED.md)** - Tutorial with real-world examples
-- **[Integration Guide](../clasp/INTEGRATION.md)** - Framework-specific examples (LangChain, LlamaIndex, etc.)
-- **[Design Principles](../clasp/DESIGN.md)** - Algorithm details and edge cases
-- **[Performance Guide](../clasp/PERFORMANCE.md)** - Benchmarks and optimization tips
-- **[API Documentation](https://docs.rs/clasp)** - Full Rust API reference
+- **[rankops (Rust) README](../README.md)** - Algorithm overview and quickstart
+- **[API Documentation](https://docs.rs/rankops)** - Full Rust API reference
 
 ## License
 

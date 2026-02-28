@@ -1,0 +1,21 @@
+# Managed by repository-settings/app
+# https://github.com/repository-settings/app
+
+repository:
+  description: "Operations on ranked lists: fusion (RRF, CombMNZ, Borda, DBSF), reranking (MaxSim/ColBERT, MMR, DPP, Matryoshka). Pairs with rankfns (scoring kernels)."
+  homepage: "https://docs.rs/rankops"
+  private: false
+  has_issues: true
+  has_wiki: false
+  has_downloads: true
+  default_branch: main
+  allow_squash_merge: true
+  allow_merge_commit: true
+  allow_rebase_merge: true
+  delete_branch_on_merge: true
+
+  topics:
+    - information-retrieval
+    - reranking
+    - rank-fusion
+    - rust

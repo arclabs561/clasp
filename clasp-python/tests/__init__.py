@@ -1,2 +1,2 @@
-# Test suite for rank-fusion Python bindings
+# Test suite for rankops Python bindings (PyPI: clasp)
 

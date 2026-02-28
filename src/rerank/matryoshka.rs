@@ -31,7 +31,7 @@
 //! # Example
 //!
 //! ```rust
-//! use clasp::rerank::matryoshka;
+//! use rankops::rerank::matryoshka;
 //!
 //! // Candidates from Stage 1 (coarse search)
 //! let candidates = vec![("d1", 0.9), ("d2", 0.8)];
@@ -61,7 +61,7 @@
 //! - `alpha = 0.5`: Equal blend (default)
 //! - `alpha = 0.0`: Use tail similarity only
 //!
-//! See [REFERENCE.md](https://github.com/arclabs561/clasp) for mathematical details.
+//! See [REFERENCE.md](https://github.com/arclabs561/rankops) for mathematical details.
 
 use super::{simd, RerankConfig, RerankError, Result};
 use std::collections::HashMap;

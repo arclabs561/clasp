@@ -1,4 +1,4 @@
-//! Property tests for clasp algorithms.
+//! Property tests for rankops algorithms.
 //!
 //! These tests verify invariants that should always hold:
 //! - Output is sorted descending

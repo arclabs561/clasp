@@ -1,4 +1,4 @@
-//! Python bindings for clasp using PyO3.
+//! Python bindings for rankops (Rust) using PyO3. Python module name: clasp.
 //!
 //! Provides a Python API that mirrors the Rust API, enabling seamless
 //! integration with Python RAG/search stacks.
@@ -21,15 +21,15 @@
 // Action: Check pyo3 changelog when upgrading to 0.25+ to see if IntoPyObject migration is needed.
 #![allow(deprecated)]
 
-use ::clasp::explain::{
+use ::rankops::explain::{
     combmnz_explain, combsum_explain, dbsf_explain, rrf_explain, ConsensusReport, Explanation,
     FusedResult, RetrieverId, RetrieverStats, SourceContribution,
 };
-use ::clasp::validate::{
+use ::rankops::validate::{
     validate, validate_bounds, validate_finite_scores, validate_no_duplicates,
     validate_non_negative_scores, validate_sorted, ValidationResult,
 };
-use ::clasp::{
+use ::rankops::{
     additive_multi_task_with_config, borda_multi, borda_with_config, combmnz_multi,
     combmnz_with_config, combsum_multi, combsum_with_config, dbsf_multi, dbsf_with_config,
     isr_multi, isr_with_config, rrf_multi, rrf_with_config, standardized_multi,

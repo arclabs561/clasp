@@ -183,7 +183,7 @@ pub use fallback::{cosine, dot, maxsim, maxsim_cosine, norm};
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::maxsim_alignments;
+/// use rankops::rerank::simd::maxsim_alignments;
 ///
 /// let q1 = [1.0, 0.0];
 /// let q2 = [0.0, 1.0];
@@ -286,7 +286,7 @@ pub fn maxsim_alignments_cosine(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::highlight_matches;
+/// use rankops::rerank::simd::highlight_matches;
 ///
 /// let q1 = [1.0, 0.0];
 /// let d1 = [0.9, 0.1];  // matches query[0]
@@ -355,7 +355,7 @@ pub fn highlight_matches(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::maxsim_weighted;
+/// use rankops::rerank::simd::maxsim_weighted;
 ///
 /// let query = vec![[1.0, 0.0], [0.0, 1.0]];
 /// let doc = vec![[0.9, 0.1], [0.1, 0.9]];
@@ -439,7 +439,7 @@ pub fn maxsim_weighted_vecs(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::maxsim_vecs;
+/// use rankops::rerank::simd::maxsim_vecs;
 ///
 /// let query = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 /// let doc = vec![vec![0.9, 0.1], vec![0.1, 0.9]];
@@ -519,7 +519,7 @@ pub fn highlight_matches_vecs(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::maxsim_batch;
+/// use rankops::rerank::simd::maxsim_batch;
 ///
 /// let query = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 /// let docs = vec![
@@ -566,7 +566,7 @@ pub fn maxsim_cosine_batch(query: &[Vec<f32>], docs: &[Vec<Vec<f32>>]) -> Vec<f3
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::maxsim_alignments_batch;
+/// use rankops::rerank::simd::maxsim_alignments_batch;
 ///
 /// let query = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 /// let docs = vec![
@@ -620,7 +620,7 @@ pub fn maxsim_alignments_cosine_batch(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::highlight_matches_batch;
+/// use rankops::rerank::simd::highlight_matches_batch;
 ///
 /// let query = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 /// let docs = vec![
@@ -662,7 +662,7 @@ pub fn highlight_matches_batch(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::{maxsim_alignments_vecs, top_k_alignments};
+/// use rankops::rerank::simd::{maxsim_alignments_vecs, top_k_alignments};
 ///
 /// let query = vec![vec![1.0, 0.0], vec![0.0, 1.0], vec![0.5, 0.5]];
 /// let doc = vec![vec![0.9, 0.1], vec![0.1, 0.9], vec![0.3, 0.3], vec![0.8, 0.2]];
@@ -694,7 +694,7 @@ pub fn top_k_alignments(alignments: &[(usize, usize, f32)], k: usize) -> Vec<(us
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::{maxsim_alignments_vecs, filter_alignments};
+/// use rankops::rerank::simd::{maxsim_alignments_vecs, filter_alignments};
 ///
 /// let query = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 /// let doc = vec![vec![0.9, 0.1], vec![0.1, 0.9], vec![0.3, 0.3]];
@@ -727,7 +727,7 @@ pub fn filter_alignments(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::{maxsim_alignments_vecs, alignments_for_query_tokens};
+/// use rankops::rerank::simd::{maxsim_alignments_vecs, alignments_for_query_tokens};
 /// use std::collections::HashSet;
 ///
 /// let query = vec![vec![1.0, 0.0], vec![0.0, 1.0], vec![0.5, 0.5]];
@@ -762,7 +762,7 @@ pub fn alignments_for_query_tokens(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::{maxsim_alignments_vecs, alignments_for_doc_tokens};
+/// use rankops::rerank::simd::{maxsim_alignments_vecs, alignments_for_doc_tokens};
 /// use std::collections::HashSet;
 ///
 /// let query = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
@@ -795,7 +795,7 @@ pub fn alignments_for_doc_tokens(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::{maxsim_alignments_vecs, alignment_stats};
+/// use rankops::rerank::simd::{maxsim_alignments_vecs, alignment_stats};
 ///
 /// let query = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 /// let doc = vec![vec![0.9, 0.1], vec![0.1, 0.9], vec![0.3, 0.3]];
@@ -844,7 +844,7 @@ pub fn alignment_stats(alignments: &[(usize, usize, f32)]) -> (f32, f32, f32, f3
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::idf_weights;
+/// use rankops::rerank::simd::idf_weights;
 ///
 /// // Query: ["rust", "memory"]
 /// // "rust" appears in 100 docs, "memory" appears in 1000 docs
@@ -925,7 +925,7 @@ pub fn idf_weights(token_doc_freqs: &[usize], total_docs: usize) -> Vec<f32> {
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::bm25_weights;
+/// use rankops::rerank::simd::bm25_weights;
 ///
 /// // Query: ["rust", "rust", "memory"] (rust appears twice)
 /// let doc_freqs = vec![100, 100];  // Both tokens appear in 100 docs
@@ -1019,7 +1019,7 @@ pub fn bm25_weights(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::patches_to_regions;
+/// use rankops::rerank::simd::patches_to_regions;
 ///
 /// // Image: 1024×768 pixels, split into 32×32 patches
 /// let highlighted_patches = vec![0, 1, 32, 33]; // Top-left corner patches
@@ -1084,7 +1084,7 @@ pub fn patches_to_regions(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::{maxsim_alignments_vecs, extract_snippet_indices};
+/// use rankops::rerank::simd::{maxsim_alignments_vecs, extract_snippet_indices};
 ///
 /// let query = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 /// let doc = vec![vec![0.9, 0.1], vec![0.1, 0.9], vec![0.5, 0.5]];
@@ -1161,7 +1161,7 @@ pub fn extract_snippet_indices(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::{maxsim, normalize_maxsim};
+/// use rankops::rerank::simd::{maxsim, normalize_maxsim};
 ///
 /// let q: Vec<&[f32]> = vec![&[1.0, 0.0], &[0.0, 1.0]];
 /// let d: Vec<&[f32]> = vec![&[0.9, 0.1]];
@@ -1185,7 +1185,7 @@ pub fn normalize_maxsim(score: f32, query_maxlen: u32) -> f32 {
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::softmax_scores;
+/// use rankops::rerank::simd::softmax_scores;
 ///
 /// let scores = vec![2.0, 1.0, 0.1];
 /// let probs = softmax_scores(&scores);
@@ -1248,7 +1248,7 @@ pub fn normalize_maxsim_batch(scores: &[f32], query_maxlen: u32) -> Vec<f32> {
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::top_k_indices;
+/// use rankops::rerank::simd::top_k_indices;
 ///
 /// let scores = vec![0.5, 0.9, 0.1, 0.7];
 /// let top2 = top_k_indices(&scores, 2);
@@ -1284,7 +1284,7 @@ pub fn top_k_indices(scores: &[f32], k: usize) -> Vec<usize> {
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::simd::dot_truncating;
+/// use rankops::rerank::simd::dot_truncating;
 ///
 /// // Compare only first 64 dims of a 768-dim embedding
 /// let full = vec![1.0; 768];

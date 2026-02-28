@@ -58,7 +58,7 @@ pub struct TokenMatch {
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::explain::maxsim_explained;
+/// use rankops::rerank::explain::maxsim_explained;
 ///
 /// let query = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 /// let doc = vec![vec![0.9, 0.1], vec![0.1, 0.9]];
@@ -271,7 +271,7 @@ pub struct FineGrainedResult<K> {
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::explain::{RerankerInput, Candidate, RerankMethod, rerank_fine_grained, FineGrainedConfig};
+/// use rankops::rerank::explain::{RerankerInput, Candidate, RerankMethod, rerank_fine_grained, FineGrainedConfig};
 ///
 /// let query_tokens = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 /// let doc1_tokens = vec![vec![0.9, 0.1], vec![0.1, 0.9]];
@@ -440,7 +440,7 @@ pub fn rerank_fine_grained<'a, K: Clone>(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::explain::{RerankerInput, Candidate, RerankMethod, rerank_batch};
+/// use rankops::rerank::explain::{RerankerInput, Candidate, RerankMethod, rerank_batch};
 ///
 /// let query_tokens = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 /// let doc1_tokens = vec![vec![0.9, 0.1], vec![0.1, 0.9]];
@@ -551,7 +551,7 @@ pub mod weights {
     /// # Example
     ///
     /// ```rust
-    /// use clasp::rerank::explain::weights::idf_weights;
+    /// use rankops::rerank::explain::weights::idf_weights;
     /// use std::collections::HashMap;
     ///
     /// let idf_table = HashMap::from([
@@ -585,7 +585,7 @@ pub mod weights {
     /// # Example
     ///
     /// ```rust
-    /// use clasp::rerank::explain::weights::attention_weights;
+    /// use rankops::rerank::explain::weights::attention_weights;
     ///
     /// let attention = vec![0.1, 0.3, 0.6];
     /// let weights = attention_weights(&attention);

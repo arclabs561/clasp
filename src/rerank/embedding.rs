@@ -16,7 +16,7 @@
 //! ## Example
 //!
 //! ```rust
-//! use clasp::rerank::embedding::{Normalized, normalize};
+//! use rankops::rerank::embedding::{Normalized, normalize};
 //!
 //! // Normalized embeddings: dot = cosine
 //! let q = normalize(&[3.0, 4.0]).unwrap();
@@ -320,6 +320,7 @@ mod tests {
 #[cfg(test)]
 mod proptests {
     use super::*;
+    use crate::rerank::simd;
     use proptest::prelude::*;
 
     proptest! {
@@ -397,7 +398,7 @@ mod proptests {
             let masked_d = MaskedTokens::from_tokens(doc_tokens.clone());
 
             let masked_score = maxsim_masked(&masked_q, &masked_d);
-            let regular_score = super::simd::maxsim_vecs(&query_tokens, &doc_tokens);
+            let regular_score = simd::maxsim_vecs(&query_tokens, &doc_tokens);
 
             prop_assert!((masked_score - regular_score).abs() < 1e-5);
         }

@@ -1,8 +1,8 @@
 # clasp-wasm
 
-WASM bindings for `clasp` (rank fusion).
+WASM bindings for **rankops** (fusion + reranking). Keeps the main rankops crate dependency-light.
 
-This crate is part of the `clasp/` repo.
+Part of the **rankops** crate (this directory: `rankops/crates/clasp-wasm`).
 
 ## License
 

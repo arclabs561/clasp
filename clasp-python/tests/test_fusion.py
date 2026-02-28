@@ -1,4 +1,4 @@
-"""Comprehensive tests for rank-fusion Python bindings."""
+"""Comprehensive tests for rankops Python bindings (PyPI package: clasp)."""
 
 import pytest
 import rank_fusion

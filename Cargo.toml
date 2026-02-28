@@ -1,24 +1,30 @@
 [package]
-name = "clasp"
+name = "rankops"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-description = "Rank fusion and reranking: RRF, ISR, CombMNZ, Borda, DBSF, MaxSim (ColBERT), MMR, DPP, Matryoshka."
-repository = "https://github.com/arclabs561/clasp"
+description = "Operations on ranked lists: fusion (RRF, CombMNZ, Borda, DBSF), reranking (MaxSim/ColBERT, MMR, DPP, Matryoshka). Pairs with rankfns (scoring kernels)."
+repository = "https://github.com/arclabs561/rankops"
 readme = "README.md"
-keywords = ["rank-fusion", "retrieval", "rrf"]
+keywords = ["rerank", "rrf", "retrieval", "rankops", "fusion"]
 categories = ["algorithms", "mathematics", "science"]
 
 [dependencies]
 serde = { version = "1.0", optional = true, features = ["derive"] }
-# SIMD primitives for reranking (MaxSim/ColBERT)
-innr = { version = "0.1.0", optional = true }
+# SIMD primitives for reranking (MaxSim/ColBERT); innr's maxsim feature required
+innr = { version = "0.1.0", optional = true, features = ["maxsim"] }
+# Hierarchical clustering for ColBERT (optional)
+kodama = { version = "0.3", optional = true }
 
 [features]
 default = ["rerank"]
 serde = ["dep:serde"]
 # Reranking: MaxSim (ColBERT), diversity, matryoshka — requires innr for SIMD
 rerank = ["dep:innr"]
+# Alias so #[cfg(feature = "innr")] in rerank/simd.rs matches (rerank enables innr)
+innr = ["rerank"]
+# Hierarchical ColBERT; enables kodama for dendrogram clustering
+hierarchical = ["dep:kodama"]
 
 [dev-dependencies]
 criterion = { version = "0.7", features = ["html_reports"] }

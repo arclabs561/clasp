@@ -1,10 +1,10 @@
-//! Rank fusion and reranking for hybrid search.
+//! Operations on ranked lists: fuse multiple retrievers, then rerank.
 //!
-//! Combine results from multiple retrievers (BM25, dense, sparse) and rerank with
-//! MaxSim (ColBERT), diversity (MMR/DPP), or Matryoshka two-stage retrieval.
+//! Pairs with **rankfns** (scoring kernels). Combine results from multiple retrievers
+//! (BM25, dense, sparse) and rerank with MaxSim (ColBERT), diversity (MMR/DPP), or Matryoshka.
 //!
 //! ```rust
-//! use clasp::rrf;
+//! use rankops::rrf;
 //!
 //! let bm25 = vec![("d1", 12.5), ("d2", 11.0)];
 //! let dense = vec![("d2", 0.9), ("d3", 0.8)];
@@ -44,7 +44,7 @@
 //!
 //! `OpenSearch` benchmarks (BEIR) show RRF is ~3-4% lower NDCG than score-based
 //! fusion (`CombSUM`), but ~1-2% faster. RRF excels when score scales are
-//! incompatible or unknown. See [OpenSearch RRF blog](https://opensearch.org/blog/introducing-reciprocal-clasp-hybrid-search/).
+//! incompatible or unknown. See [OpenSearch RRF blog](https://opensearch.org/blog/introducing-reciprocal-rank-fusion-hybrid-search/).
 
 use std::collections::HashMap;
 use std::hash::Hash;
@@ -104,7 +104,7 @@ const SCORE_RANGE_EPSILON: f32 = 1e-9;
 /// # Example
 ///
 /// ```rust
-/// use clasp::RrfConfig;
+/// use rankops::RrfConfig;
 ///
 /// let config = RrfConfig::default()
 ///     .with_k(60)
@@ -137,7 +137,7 @@ impl RrfConfig {
     /// # Example
     ///
     /// ```rust
-    /// use clasp::RrfConfig;
+    /// use rankops::RrfConfig;
     ///
     /// let config = RrfConfig::new(60);
     /// ```
@@ -182,7 +182,7 @@ impl RrfConfig {
 /// # Example
 ///
 /// ```rust
-/// use clasp::WeightedConfig;
+/// use rankops::WeightedConfig;
 ///
 /// let config = WeightedConfig::default()
 ///     .with_weights(0.7, 0.3)
@@ -270,7 +270,7 @@ impl FusionConfig {
 /// Prelude for common imports.
 ///
 /// ```rust
-/// use clasp::prelude::*;
+/// use rankops::prelude::*;
 /// ```
 pub mod prelude {
     pub use crate::{
@@ -296,7 +296,7 @@ pub mod explain {
     };
 }
 
-// WASM bindings live in the separate `clasp-wasm` crate.
+// WASM bindings live in the separate `clasp-wasm` crate (name kept for backward compat).
 
 /// Strategy module for runtime fusion method selection.
 ///
@@ -327,7 +327,7 @@ pub use validate::{
 /// # Example
 ///
 /// ```rust
-/// use clasp::FusionMethod;
+/// use rankops::FusionMethod;
 ///
 /// let sparse = vec![("d1", 10.0), ("d2", 8.0)];
 /// let dense = vec![("d2", 0.9), ("d3", 0.7)];
@@ -629,7 +629,7 @@ impl FusionMethod {
 /// # Example
 ///
 /// ```rust
-/// use clasp::rrf;
+/// use rankops::rrf;
 ///
 /// let sparse = vec![("d1", 0.9), ("d2", 0.5)];
 /// let dense = vec![("d2", 0.8), ("d3", 0.3)];
@@ -671,7 +671,7 @@ impl FusionMethod {
 /// # Example
 ///
 /// ```rust
-/// use clasp::rrf;
+/// use rankops::rrf;
 ///
 /// // BM25 results (high scores = better)
 /// let bm25 = vec![
@@ -726,7 +726,7 @@ pub fn rrf<I: Clone + Eq + Hash>(results_a: &[(I, f32)], results_b: &[(I, f32)])
 /// # Example
 ///
 /// ```rust
-/// use clasp::{rrf_with_config, RrfConfig};
+/// use rankops::{rrf_with_config, RrfConfig};
 ///
 /// let a = vec![("d1", 0.9), ("d2", 0.5)];
 /// let b = vec![("d2", 0.8), ("d3", 0.3)];
@@ -865,7 +865,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use clasp::{rrf_weighted, RrfConfig};
+/// use rankops::{rrf_weighted, RrfConfig};
 ///
 /// let bm25 = vec![("d1", 0.0), ("d2", 0.0)];   // scores ignored
 /// let dense = vec![("d2", 0.0), ("d3", 0.0)];
@@ -947,7 +947,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use clasp::isr;
+/// use rankops::isr;
 ///
 /// let sparse = vec![("d1", 0.9), ("d2", 0.5), ("d3", 0.3)];
 /// let dense = vec![("d2", 0.8), ("d3", 0.7), ("d4", 0.2)];
@@ -993,7 +993,7 @@ pub fn isr<I: Clone + Eq + Hash>(results_a: &[(I, f32)], results_b: &[(I, f32)])
 /// # Example
 ///
 /// ```rust
-/// use clasp::{isr_with_config, RrfConfig};
+/// use rankops::{isr_with_config, RrfConfig};
 ///
 /// let a = vec![("d1", 0.9), ("d2", 0.5)];
 /// let b = vec![("d2", 0.8), ("d3", 0.3)];
@@ -1204,7 +1204,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use clasp::combsum;
+/// use rankops::combsum;
 ///
 /// // Both lists use cosine similarity (0-1 scale)
 /// let sparse = vec![
@@ -1323,7 +1323,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use clasp::combmnz;
+/// use rankops::combmnz;
 ///
 /// let sparse = vec![("doc1", 0.9), ("doc2", 0.8)];
 /// let dense = vec![("doc2", 0.95), ("doc3", 0.7)];
@@ -1450,7 +1450,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use clasp::borda;
+/// use rankops::borda;
 ///
 /// // List 1: 3 items (positions 0, 1, 2 → scores 3, 2, 1)
 /// let list1 = vec![("d1", 0.9), ("d2", 0.5), ("d3", 0.3)];
@@ -1573,7 +1573,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use clasp::dbsf;
+/// use rankops::dbsf;
 ///
 /// // BM25 scores (high variance, different scale)
 /// let bm25 = vec![("d1", 15.0), ("d2", 12.0), ("d3", 8.0)];
@@ -1756,7 +1756,7 @@ impl StandardizedConfig {
 /// # Example
 ///
 /// ```rust
-/// use clasp::standardized;
+/// use rankops::standardized;
 ///
 /// let bm25 = vec![("d1", 15.0), ("d2", 12.0), ("d3", 8.0)];
 /// let dense = vec![("d2", 0.9), ("d3", 0.7), ("d4", 0.5)];
@@ -1899,7 +1899,7 @@ impl AdditiveMultiTaskConfig {
 /// # Example
 ///
 /// ```rust
-/// use clasp::{additive_multi_task, AdditiveMultiTaskConfig};
+/// use rankops::{additive_multi_task, AdditiveMultiTaskConfig};
 ///
 /// let ctr_scores = vec![("item1", 0.05), ("item2", 0.03), ("item3", 0.01)];
 /// let ctcvr_scores = vec![("item1", 0.02), ("item2", 0.01), ("item3", 0.005)];
@@ -1938,7 +1938,7 @@ pub fn additive_multi_task_with_config<I: Clone + Eq + Hash>(
 /// # Example
 ///
 /// ```rust
-/// use clasp::{additive_multi_task_multi, AdditiveMultiTaskConfig};
+/// use rankops::{additive_multi_task_multi, AdditiveMultiTaskConfig};
 ///
 /// let task1 = vec![("d1", 0.9), ("d2", 0.7)];
 /// let task2 = vec![("d1", 0.8), ("d2", 0.6)];
@@ -2152,7 +2152,7 @@ fn min_max_params<I>(results: &[(I, f32)]) -> (f32, f32) {
 /// # Example
 ///
 /// ```rust
-/// use clasp::explain::{rrf_explain, RetrieverId};
+/// use rankops::explain::{rrf_explain, RetrieverId};
 ///
 /// let bm25 = vec![("d1", 12.5), ("d2", 11.0)];
 /// let dense = vec![("d2", 0.9), ("d3", 0.8)];
@@ -2165,7 +2165,7 @@ fn min_max_params<I>(results: &[(I, f32)]) -> (f32, f32) {
 /// let explained = rrf_explain(
 ///     &[&bm25[..], &dense[..]],
 ///     &retrievers,
-///     clasp::RrfConfig::default(),
+///     rankops::RrfConfig::default(),
 /// );
 ///
 /// // d2 appears in both lists, so it has 2 source contributions
@@ -2271,8 +2271,8 @@ impl From<String> for RetrieverId {
 /// # Example
 ///
 /// ```rust
-/// use clasp::explain::{rrf_explain, RetrieverId};
-/// use clasp::RrfConfig;
+/// use rankops::explain::{rrf_explain, RetrieverId};
+/// use rankops::RrfConfig;
 ///
 /// let bm25 = vec![("d1", 12.5), ("d2", 11.0)];
 /// let dense = vec![("d2", 0.9), ("d3", 0.8)];
@@ -2386,8 +2386,8 @@ where
 /// # Example
 ///
 /// ```rust
-/// use clasp::explain::{rrf_explain, analyze_consensus, RetrieverId};
-/// use clasp::RrfConfig;
+/// use rankops::explain::{rrf_explain, analyze_consensus, RetrieverId};
+/// use rankops::RrfConfig;
 ///
 /// let bm25 = vec![("d1", 12.5), ("d2", 11.0)];
 /// let dense = vec![("d2", 0.9), ("d3", 0.8)];
@@ -2483,8 +2483,8 @@ pub struct RetrieverStats {
 /// # Example
 ///
 /// ```rust
-/// use clasp::explain::{rrf_explain, attribute_top_k, RetrieverId};
-/// use clasp::RrfConfig;
+/// use rankops::explain::{rrf_explain, attribute_top_k, RetrieverId};
+/// use rankops::RrfConfig;
 ///
 /// let bm25 = vec![("d1", 12.5), ("d2", 11.0)];
 /// let dense = vec![("d2", 0.9), ("d3", 0.8)];
@@ -2770,7 +2770,7 @@ fn build_explained_results<I: Clone + Eq + Hash>(
 /// # Example
 ///
 /// ```rust
-/// use clasp::FusionStrategy;
+/// use rankops::FusionStrategy;
 ///
 /// let list1 = vec![("d1", 1.0), ("d2", 0.5)];
 /// let list2 = vec![("d2", 0.9), ("d3", 0.8)];
@@ -3368,7 +3368,7 @@ impl MmrConfig {
 /// # Example
 ///
 /// ```rust
-/// use clasp::{mmr, MmrConfig};
+/// use rankops::{mmr, MmrConfig};
 /// use std::collections::HashMap;
 ///
 /// // Candidates with relevance scores
@@ -3495,7 +3495,7 @@ where
 /// # Example
 ///
 /// ```rust
-/// use clasp::{mmr_with_matrix, MmrConfig};
+/// use rankops::{mmr_with_matrix, MmrConfig};
 /// use std::collections::HashMap;
 ///
 /// let candidates = vec![("a", 0.9), ("b", 0.85), ("c", 0.8)];
@@ -3732,8 +3732,8 @@ pub struct OptimizedParams {
 /// # Example
 ///
 /// ```rust
-/// use clasp::optimize::{optimize_fusion, OptimizeConfig, OptimizeMetric, ParamGrid};
-/// use clasp::FusionMethod;
+/// use rankops::optimize::{optimize_fusion, OptimizeConfig, OptimizeMetric, ParamGrid};
+/// use rankops::FusionMethod;
 ///
 /// let qrels = std::collections::HashMap::from([
 ///     ("doc1", 2), // highly relevant

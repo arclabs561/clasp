@@ -12,7 +12,7 @@
 //! ## Example
 //!
 //! ```rust
-//! use clasp::rerank::quantization::{quantize_int8, dequantize_int8};
+//! use rankops::rerank::quantization::{quantize_int8, dequantize_int8};
 //!
 //! let embeddings: Vec<f32> = vec![0.1, 0.2, 0.3, 0.4, 0.5];
 //! let (quantized, scale, zero_point) = quantize_int8(&embeddings);
@@ -40,7 +40,7 @@
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::quantization::quantize_int8;
+/// use rankops::rerank::quantization::quantize_int8;
 ///
 /// let embeddings = vec![0.1, 0.2, -0.3, 0.4, -0.5];
 /// let (quantized, scale, zero_point) = quantize_int8(&embeddings);
@@ -85,7 +85,7 @@ pub fn quantize_int8(values: &[f32]) -> (Vec<i8>, f32, i8) {
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::quantization::{quantize_int8, dequantize_int8};
+/// use rankops::rerank::quantization::{quantize_int8, dequantize_int8};
 ///
 /// let original = vec![0.1, 0.2, -0.3];
 /// let (quantized, scale, zero_point) = quantize_int8(&original);
@@ -115,7 +115,7 @@ pub fn dequantize_int8(quantized: &[i8], scale: f32, zero_point: i8) -> Vec<f32>
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::quantization::{quantize_fp16, dequantize_fp16};
+/// use rankops::rerank::quantization::{quantize_fp16, dequantize_fp16};
 ///
 /// let embeddings = vec![0.1, 0.2, 0.3];
 /// let quantized = quantize_fp16(&embeddings);

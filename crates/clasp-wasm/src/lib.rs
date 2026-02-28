@@ -1,10 +1,10 @@
-//! WebAssembly bindings for `clasp`.
+//! WebAssembly bindings for `rankops`.
 //!
-//! This crate exists to keep `clasp` itself small and dependency-light.
+//! This crate exists to keep `rankops` itself small and dependency-light.
 
 use wasm_bindgen::prelude::*;
 
-use clasp::{
+use rankops::{
     additive_multi_task_with_config, standardized_with_config, AdditiveMultiTaskConfig,
     FusionConfig, Normalization, RrfConfig, StandardizedConfig, WeightedConfig,
 };
@@ -80,7 +80,7 @@ pub fn rrf(
     }
 
     let config = RrfConfig { k: k_val, top_k };
-    Ok(results_to_js(&clasp::rrf_with_config(&a, &b, config)))
+    Ok(results_to_js(&rankops::rrf_with_config(&a, &b, config)))
 }
 
 #[wasm_bindgen]
@@ -101,35 +101,35 @@ pub fn isr(
     }
 
     let config = RrfConfig { k: k_val, top_k };
-    Ok(results_to_js(&clasp::isr_with_config(&a, &b, config)))
+    Ok(results_to_js(&rankops::isr_with_config(&a, &b, config)))
 }
 
 #[wasm_bindgen]
 pub fn combsum(results_a: &JsValue, results_b: &JsValue) -> Result<JsValue, JsValue> {
     let a = js_to_results(results_a)?;
     let b = js_to_results(results_b)?;
-    Ok(results_to_js(&clasp::combsum(&a, &b)))
+    Ok(results_to_js(&rankops::combsum(&a, &b)))
 }
 
 #[wasm_bindgen]
 pub fn combmnz(results_a: &JsValue, results_b: &JsValue) -> Result<JsValue, JsValue> {
     let a = js_to_results(results_a)?;
     let b = js_to_results(results_b)?;
-    Ok(results_to_js(&clasp::combmnz(&a, &b)))
+    Ok(results_to_js(&rankops::combmnz(&a, &b)))
 }
 
 #[wasm_bindgen]
 pub fn borda(results_a: &JsValue, results_b: &JsValue) -> Result<JsValue, JsValue> {
     let a = js_to_results(results_a)?;
     let b = js_to_results(results_b)?;
-    Ok(results_to_js(&clasp::borda(&a, &b)))
+    Ok(results_to_js(&rankops::borda(&a, &b)))
 }
 
 #[wasm_bindgen]
 pub fn dbsf(results_a: &JsValue, results_b: &JsValue) -> Result<JsValue, JsValue> {
     let a = js_to_results(results_a)?;
     let b = js_to_results(results_b)?;
-    Ok(results_to_js(&clasp::dbsf(&a, &b)))
+    Ok(results_to_js(&rankops::dbsf(&a, &b)))
 }
 
 #[wasm_bindgen]
@@ -155,7 +155,7 @@ pub fn weighted(
         normalize,
         top_k,
     };
-    Ok(results_to_js(&clasp::weighted(&a, &b, config)))
+    Ok(results_to_js(&rankops::weighted(&a, &b, config)))
 }
 
 #[wasm_bindgen]
@@ -244,7 +244,7 @@ pub fn rrf_multi(
         ));
     }
     let config = RrfConfig { k: k_val, top_k };
-    Ok(results_to_js(&clasp::rrf_multi(&rust_lists, config)))
+    Ok(results_to_js(&rankops::rrf_multi(&rust_lists, config)))
 }
 
 #[wasm_bindgen]
@@ -267,5 +267,5 @@ pub fn combsum_multi(lists: &JsValue, top_k: Option<usize>) -> Result<JsValue, J
     }
 
     let config = FusionConfig { top_k };
-    Ok(results_to_js(&clasp::combsum_multi(&rust_lists, config)))
+    Ok(results_to_js(&rankops::combsum_multi(&rust_lists, config)))
 }

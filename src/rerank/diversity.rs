@@ -45,7 +45,7 @@
 //! # Example
 //!
 //! ```rust
-//! use clasp::rerank::diversity::{mmr, MmrConfig};
+//! use rankops::rerank::diversity::{mmr, MmrConfig};
 //!
 //! // Candidates with precomputed relevance scores
 //! let candidates: Vec<(&str, f32)> = vec![
@@ -159,7 +159,7 @@ pub mod tuning {
     /// # Example
     ///
     /// ```rust
-    /// use clasp::rerank::diversity::tuning::tune_lambda;
+    /// use rankops::rerank::diversity::tuning::tune_lambda;
     ///
     /// let candidates = vec![("d1", 0.9), ("d2", 0.8), ("d3", 0.7)];
     /// let similarity = vec![1.0, 0.9, 0.2, 0.9, 1.0, 0.3, 0.2, 0.3, 1.0];
@@ -423,7 +423,7 @@ pub fn try_mmr<I: Clone>(
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::diversity::{mmr_cosine, MmrConfig};
+/// use rankops::rerank::diversity::{mmr_cosine, MmrConfig};
 ///
 /// let candidates = vec![("doc1", 0.9), ("doc2", 0.85), ("doc3", 0.8)];
 /// let embeddings: Vec<Vec<f32>> = vec![
@@ -615,7 +615,7 @@ impl DppConfig {
 /// # Example
 ///
 /// ```rust
-/// use clasp::rerank::diversity::{dpp, DppConfig};
+/// use rankops::rerank::diversity::{dpp, DppConfig};
 ///
 /// let candidates: Vec<(&str, f32)> = vec![
 ///     ("doc1", 0.95),
