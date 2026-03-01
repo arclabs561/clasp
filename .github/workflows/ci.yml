@@ -30,7 +30,7 @@ jobs:
       - name: test
         run: cargo test --all-targets --all-features
 
-      - name: build clasp-wasm (wasm32)
+      - name: build rankops-wasm (wasm32)
         run: |
           rustup target add wasm32-unknown-unknown
-          cargo build --manifest-path crates/clasp-wasm/Cargo.toml --target wasm32-unknown-unknown
+          cargo build --manifest-path crates/rankops-wasm/Cargo.toml --target wasm32-unknown-unknown

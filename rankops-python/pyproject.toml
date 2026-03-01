@@ -3,14 +3,14 @@ requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "clasp"
+name = "rankops"
 version = "0.1.20"
-description = "Python bindings for rankops (Rust) — fusion and reranking for hybrid search. PyPI package name: clasp."
+description = "Python bindings for rankops (Rust) — fusion and reranking for hybrid search."
 readme = "README.md"
 requires-python = ">=3.7"
 license = { text = "MIT OR Apache-2.0" }
 authors = [{ name = "Arc", email = "attobop@gmail.com" }]
-keywords = ["vector-search", "hybrid-search", "rrf", "rag", "search", "clasp"]
+keywords = ["vector-search", "hybrid-search", "rrf", "rag", "search", "rankops"]
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",

@@ -296,7 +296,7 @@ pub mod explain {
     };
 }
 
-// WASM bindings live in the separate `clasp-wasm` crate (name kept for backward compat).
+// WASM bindings live in the separate `rankops-wasm` crate.
 
 /// Strategy module for runtime fusion method selection.
 ///

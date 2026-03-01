@@ -1,4 +1,4 @@
-//! Python bindings for rankops (Rust) using PyO3. Python module name: clasp.
+//! Python bindings for rankops (Rust) using PyO3.
 //!
 //! Provides a Python API that mirrors the Rust API, enabling seamless
 //! integration with Python RAG/search stacks.
@@ -6,12 +6,12 @@
 //! # Usage
 //!
 //! ```python
-//! import clasp
+//! import rankops
 //!
 //! bm25 = [("d1", 12.5), ("d2", 11.0)]
 //! dense = [("d2", 0.9), ("d3", 0.8)]
 //!
-//! fused = clasp.rrf(bm25, dense, k=60)
+//! fused = rankops.rrf(bm25, dense, k=60)
 //! # [("d2", 0.033), ("d1", 0.016), ("d3", 0.016)]
 //! ```
 
@@ -114,7 +114,7 @@ pub fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
 /// Python module for rank fusion.
 #[allow(deprecated)]
 #[pymodule]
-fn clasp(py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn rankops(py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     register(py, m)
 }
 

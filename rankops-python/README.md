@@ -1,23 +1,14 @@
-# clasp-python
+# rankops-python
 
-Python bindings for **rankops** (Rust) — fusion and reranking for hybrid search. The Rust crate is [rankops](../README.md) (directory `rankops/`); this package is published as `clasp` on PyPI for backward compatibility.
-
-[![PyPI](https://img.shields.io/pypi/v/clasp.svg)](https://pypi.org/project/clasp/)
-[![Python](https://img.shields.io/pypi/pyversions/clasp.svg)](https://pypi.org/project/clasp/)
+Python bindings for **rankops** (Rust) -- fusion and reranking for hybrid search.
 
 ## Installation
-
-### From PyPI
-
-```bash
-pip install clasp
-```
 
 ### From source
 
 ```bash
 # Using uv (recommended)
-cd clasp-python
+cd rankops-python
 uv venv
 source .venv/bin/activate
 uv tool install maturin
@@ -31,7 +22,7 @@ maturin develop --release
 ## Quick Start
 
 ```python
-import clasp
+import rankops
 
 # BM25 results (keyword search)
 bm25 = [("doc_1", 87.5), ("doc_2", 82.3), ("doc_3", 78.1)]
@@ -40,7 +31,7 @@ bm25 = [("doc_1", 87.5), ("doc_2", 82.3), ("doc_3", 78.1)]
 dense = [("doc_2", 0.92), ("doc_1", 0.88), ("doc_4", 0.85)]
 
 # RRF finds consensus: doc_2 appears high in both lists
-fused = clasp.rrf(bm25, dense, k=60)
+fused = rankops.rrf(bm25, dense, k=60)
 # [("doc_2", 0.033), ("doc_1", 0.032), ("doc_3", 0.016), ("doc_4", 0.016)]
 ```
 
@@ -56,10 +47,10 @@ These methods work with any score scale because they only use rank positions:
 
 ```python
 # Two lists
-fused = clasp.rrf(bm25, dense, k=60, top_k=10)
+fused = rankops.rrf(bm25, dense, k=60, top_k=10)
 
 # Multiple lists
-fused = clasp.rrf_multi([bm25, dense, sparse], k=60, top_k=10)
+fused = rankops.rrf_multi([bm25, dense, sparse], k=60, top_k=10)
 ```
 
 **When to use**: Different score scales (BM25: 0-100, dense: 0-1), zero-configuration needs.
@@ -67,8 +58,8 @@ fused = clasp.rrf_multi([bm25, dense, sparse], k=60, top_k=10)
 #### ISR (Inverse Square Rank)
 
 ```python
-fused = clasp.isr(bm25, dense, k=1, top_k=10)
-fused = clasp.isr_multi([bm25, dense], k=1, top_k=10)
+fused = rankops.isr(bm25, dense, k=1, top_k=10)
+fused = rankops.isr_multi([bm25, dense], k=1, top_k=10)
 ```
 
 **When to use**: When lower ranks should contribute more relative to top positions.
@@ -76,8 +67,8 @@ fused = clasp.isr_multi([bm25, dense], k=1, top_k=10)
 #### Borda Count
 
 ```python
-fused = clasp.borda(bm25, dense, top_k=10)
-fused = clasp.borda_multi([bm25, dense], top_k=10)
+fused = rankops.borda(bm25, dense, top_k=10)
+fused = rankops.borda_multi([bm25, dense], top_k=10)
 ```
 
 **When to use**: Simple voting-based fusion.
@@ -89,8 +80,8 @@ These methods require scores on compatible scales:
 #### CombSUM
 
 ```python
-fused = clasp.combsum(bm25, dense, top_k=10)
-fused = clasp.combsum_multi([bm25, dense], top_k=10)
+fused = rankops.combsum(bm25, dense, top_k=10)
+fused = rankops.combsum_multi([bm25, dense], top_k=10)
 ```
 
 **When to use**: Scores on the same scale (both 0-1, both cosine similarity).
@@ -98,8 +89,8 @@ fused = clasp.combsum_multi([bm25, dense], top_k=10)
 #### CombMNZ
 
 ```python
-fused = clasp.combmnz(bm25, dense, top_k=10)
-fused = clasp.combmnz_multi([bm25, dense], top_k=10)
+fused = rankops.combmnz(bm25, dense, top_k=10)
+fused = rankops.combmnz_multi([bm25, dense], top_k=10)
 ```
 
 **When to use**: Same scale as CombSUM, but want to reward documents appearing in multiple lists.
@@ -107,7 +98,7 @@ fused = clasp.combmnz_multi([bm25, dense], top_k=10)
 #### Weighted Fusion
 
 ```python
-fused = clasp.weighted(
+fused = rankops.weighted(
     bm25, dense,
     weight_a=0.7,  # Weight for first list
     weight_b=0.3,  # Weight for second list
@@ -121,8 +112,8 @@ fused = clasp.weighted(
 #### DBSF (Distribution-Based Score Fusion)
 
 ```python
-fused = clasp.dbsf(bm25, dense, top_k=10)
-fused = clasp.dbsf_multi([bm25, dense], top_k=10)
+fused = rankops.dbsf(bm25, dense, top_k=10)
+fused = rankops.dbsf_multi([bm25, dense], top_k=10)
 ```
 
 **When to use**: Score distributions differ significantly between retrievers.
@@ -131,10 +122,10 @@ fused = clasp.dbsf_multi([bm25, dense], top_k=10)
 
 ```python
 # Two lists with default clipping [-3.0, 3.0]
-fused = clasp.standardized(bm25, dense, clip_range=(-3.0, 3.0), top_k=10)
+fused = rankops.standardized(bm25, dense, clip_range=(-3.0, 3.0), top_k=10)
 
 # Multiple lists
-fused = clasp.standardized_multi(
+fused = rankops.standardized_multi(
     [bm25, dense],
     clip_min=-3.0,
     clip_max=3.0,
@@ -148,7 +139,7 @@ fused = clasp.standardized_multi(
 
 ```python
 # E-commerce example: CTR + CTCVR with 1:20 weight ratio
-fused = clasp.additive_multi_task(
+fused = rankops.additive_multi_task(
     ctr_scores,      # Click-through rate predictions
     ctcvr_scores,    # Click-to-conversion rate predictions
     weight_a=1.0,    # Weight for first task
@@ -165,15 +156,15 @@ fused = clasp.additive_multi_task(
 Get detailed provenance information showing which retrievers contributed to each result:
 
 ```python
-import clasp
+import rankops
 
 bm25 = [("doc_1", 87.5), ("doc_2", 82.3)]
 dense = [("doc_2", 0.92), ("doc_3", 0.88)]
 
 # Get results with full provenance
-explained = clasp.rrf_explain(
+explained = rankops.rrf_explain(
     [bm25, dense],
-    [clasp.RetrieverIdPy("bm25"), clasp.RetrieverIdPy("dense")],
+    [rankops.RetrieverIdPy("bm25"), rankops.RetrieverIdPy("dense")],
     k=60
 )
 
@@ -200,24 +191,23 @@ Available explainability functions:
 Validate fusion results to ensure they meet expected properties:
 
 ```python
-import clasp
+import rankops
 
-fused = clasp.rrf(bm25, dense, k=60)
+fused = rankops.rrf(bm25, dense, k=60)
 
 # Comprehensive validation
-# Parameters: (results, check_non_negative: bool, max_results: Optional[int])
-result = clasp.validate(fused, check_non_negative=False, max_results=10)
+result = rankops.validate(fused, check_non_negative=False, max_results=10)
 if not result.is_valid:
     print(f"Validation errors: {result.errors}")
 if result.warnings:
     print(f"Warnings: {result.warnings}")
 
 # Individual checks
-sorted_check = clasp.validate_sorted(fused)
-dup_check = clasp.validate_no_duplicates(fused)
-finite_check = clasp.validate_finite_scores(fused)
-non_neg_check = clasp.validate_non_negative_scores(fused)
-bounds_check = clasp.validate_bounds(fused, max_results=10)
+sorted_check = rankops.validate_sorted(fused)
+dup_check = rankops.validate_no_duplicates(fused)
+finite_check = rankops.validate_finite_scores(fused)
+non_neg_check = rankops.validate_non_negative_scores(fused)
+bounds_check = rankops.validate_bounds(fused, max_results=10)
 ```
 
 Validation checks:
@@ -232,9 +222,7 @@ Validation checks:
 For advanced usage, you can use configuration objects:
 
 ```python
-# RRF configuration
-config = clasp.RrfConfigPy(k=100)
-# Note: RRF functions accept k and top_k directly, config objects are for future extensibility
+config = rankops.RrfConfigPy(k=100)
 
 # Other config types available:
 # - FusionConfigPy (for CombSUM/CombMNZ/Borda/DBSF)
@@ -246,33 +234,32 @@ config = clasp.RrfConfigPy(k=100)
 ## Complete Example: RAG Pipeline
 
 ```python
-import clasp
+import rankops
 
 def rag_pipeline(query: str):
     # Step 1: Retrieve from multiple sources
-    # (In real code, these would call your search infrastructure)
     bm25_results = [
         ("doc_123", 87.5),
         ("doc_456", 82.3),
         ("doc_789", 78.1),
     ]
-    
+
     dense_results = [
         ("doc_456", 0.92),
         ("doc_123", 0.88),
         ("doc_999", 0.85),
     ]
-    
+
     # Step 2: Fuse results (RRF finds consensus)
-    fused = clasp.rrf_multi(
+    fused = rankops.rrf_multi(
         [bm25_results, dense_results],
         k=60,
         top_k=100  # Top 100 for reranking
     )
-    
+
     # Step 3: Rerank with cross-encoder (expensive, so only top 100)
     # reranked = cross_encoder_rerank([id for id, _ in fused], query)
-    
+
     # Step 4: Return top 10 for LLM context
     return [id for id, _ in fused[:10]]
 ```
@@ -289,23 +276,18 @@ All functions are fully typed:
 ```python
 from typing import List, Tuple
 
-# Type aliases
 RankedList = List[Tuple[str, float]]
-
-# Functions return typed results
-fused: RankedList = clasp.rrf(bm25, dense, k=60)
+fused: RankedList = rankops.rrf(bm25, dense, k=60)
 ```
 
 ## Error Handling
 
-Most functions return results directly. Functions that can error return `Result` types:
-
 ```python
 # Most functions don't error - they return empty list for edge cases
-fused = clasp.rrf([], [])  # Returns []
+fused = rankops.rrf([], [])  # Returns []
 
 # Validation functions return ValidationResult with errors/warnings
-result = clasp.validate(fused, check_non_negative=False, max_results=10)
+result = rankops.validate(fused, check_non_negative=False, max_results=10)
 if not result.is_valid:
     for error in result.errors:
         print(f"Error: {error}")
@@ -315,38 +297,15 @@ if not result.is_valid:
 
 Python bindings add minimal overhead over native Rust:
 
-- **RRF (100 items)**: ~15μs (vs 13μs in Rust)
-- **RRF (1000 items)**: ~180μs (vs 159μs in Rust)
+- **RRF (100 items)**: ~15us (vs 13us in Rust)
+- **RRF (1000 items)**: ~180us (vs 159us in Rust)
 
-Overhead comes from Python object conversion and result serialization (~1-2μs per call).
-
-## Edge Cases
-
-- **Empty lists**: Returns empty list `[]`
-- **Duplicate IDs in same list**: All occurrences contribute (for rank-based methods)
-- **k=0 in RRF**: Returns empty list (k must be >= 1)
-- **NaN/Infinity scores**: Use `validate_finite_scores()` to check
-
-## Choosing a Fusion Method
-
-**Quick decision guide:**
-
-```
-Need to fuse results?
-├─ Scores on different scales? → Use RRF (k=60)
-│  └─ Want stronger consensus? → Use RRF (k=40)
-│  └─ Lower ranks matter? → Use ISR (k=1)
-│
-└─ Scores on same scale? → Use CombSUM or CombMNZ
-   └─ Want to reward overlap? → Use CombMNZ
-   └─ Simple sum? → Use CombSUM
-   └─ Different distributions? → Use DBSF or standardized
-```
+Overhead comes from Python object conversion and result serialization (~1-2us per call).
 
 ## See Also
 
-- **[rankops (Rust) README](../README.md)** - Algorithm overview and quickstart
-- **[API Documentation](https://docs.rs/rankops)** - Full Rust API reference
+- **[rankops (Rust) README](../README.md)** -- Algorithm overview and quickstart
+- **[API Documentation](https://docs.rs/rankops)** -- Full Rust API reference
 
 ## License
 
